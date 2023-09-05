@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'api'
+    'api',
     'goods',
 ]
 
@@ -132,5 +132,13 @@ LOGGING = {
             'level': 'DEBUG',
             'handlers': ['console', ],
         },
+    }
+}
+
+
+MODELS_SETTINGS = {
+    'product_restricts': {
+        'min_categories': 2,
+        'max_categories': 10,
     }
 }

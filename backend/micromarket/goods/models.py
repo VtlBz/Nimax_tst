@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -41,17 +42,22 @@ class Product(models.Model):
             'unique': 'Товар с таким названием уже существует',
         },
     )
-    categories = models.ManyToManyField(
-        Category, through='ProductCategory',
+    product_categories = models.ManyToManyField(
+        Category,
+        through='ProductCategory',
         verbose_name='Категории',
         help_text='Категории к которым отнисится товар',
     )
     price = models.DecimalField(
         max_digits=12,
         decimal_places=2,
-        min_value=0,
         verbose_name='Цена товара',
         help_text='Цена за единицу товара',
+        validators=[
+            MinValueValidator(
+                1, 'Цена товара не может быть меньше 1!'
+            ),
+        ],
     )
     is_public = models.BooleanField(
         default=False,
@@ -86,18 +92,28 @@ class ProductCategory(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='product_categories'
+        related_name='categories',
+        verbose_name='Товар',
+        help_text='Товар в категории',
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
-        related_name='category_products',
+        related_name='products',
+        verbose_name='Категория',
+        help_text='Категория товара',
     )
 
     class Meta:
         db_table = 'products_categories'
         verbose_name = 'Товары в категориях'
         verbose_name_plural = 'Товары в категориях'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'category'],
+                name='unique_product_in_category'
+            ),
+        ]
 
     def __str__(self):
         return f'{self.product} -> {self.category}'
