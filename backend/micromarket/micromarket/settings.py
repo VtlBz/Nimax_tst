@@ -51,11 +51,12 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'micromarket.urls'
 
 TEMPLATES_DIR = BASE_DIR / 'templates'
+DOCS_DIR = BASE_DIR / 'docs'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR],
+        'DIRS': [TEMPLATES_DIR, DOCS_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

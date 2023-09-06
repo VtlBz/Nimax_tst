@@ -1,0 +1,386 @@
+openapi: 3.0.2
+info:
+  version: 1.0.0
+  title: Micromarket Project API
+  description: |
+    API документация для проекта Micromarket.
+    
+    Тестовое задание компании Nimax.
+  contact:
+    name: Micromarket API
+    url: /api/v1/
+    email: webmaster@vtlbz.com
+  license:
+    name: MIT License
+    url: https://mit-license.org/
+servers:
+- url: http://localhost/api/v1
+- url: http://localhost:8000/api/v1/
+
+paths:
+
+  /categories/:
+    get:
+      tags:
+        - Категории
+      operationId: Получение списка категорий
+      summary: Список категорий
+      description: |
+        Выводит список всех категорий.
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: OK
+    post:
+      tags:
+        - Категории
+      operationId: Создание категории
+      summary: Создание категории
+      description: |
+        Создание новой категории.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: Категория успешно создана
+        '400':
+          description: Ошибки валидации в стандартном формате DRF
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/NonFieldValidationError'
+
+  /categories/{id}/:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Уникальный id категории
+        schema:
+          type: integer
+    get:
+      tags:
+        - Категории
+      operationId: Получение конкретной категории
+      summary: Категория
+      description: |
+        Выводит категорию с заданным `id`.
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Категории
+      operationId: Изменение категории
+      summary: Изменение категории
+      description: |
+        Изменение существующей категории с заданным `id`.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: Категория успешно изменена
+        '400':
+          description: Ошибки валидации в стандартном формате DRF
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/NonFieldValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Категории
+      operationId: Удаление категории
+      summary: Удаление категории
+      description: |
+        Удаление существующей категории с заданным `id`.
+      parameters: []
+      responses:
+        '204':
+          description: Успешное удаление
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /goods/:
+    get:
+      tags:
+        - Товары
+      operationId: Получение списка товаров
+      summary: Список товаров
+      description: |
+        Выводит список всех товаров.
+      parameters:
+        - name: name
+          in: query
+          description: Поиск по названию товара
+          schema:
+            type: string
+        - name: category_id
+          in: query
+          description: Поиск по `id` категории
+          schema:
+            type: integer
+        - name: category_name
+          in: query
+          description: Поиск по названию категории
+          schema:
+            type: string
+        - name: price_min
+          in: query
+          description: Ограничение минимальной цены товара
+          schema:
+            type: number
+        - name: price_max
+          in: query
+          description: Ограничение максимальной цены товара
+          schema:
+            type: number
+        - name: is_public
+          in: query
+          description: Отметка о публикации товара
+          schema:
+            type: boolean
+        - name: is_archive
+          in: query
+          description: Отметка об архивации товара
+          schema:
+            type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+          description: OK
+    post:
+      tags:
+        - Товары
+      operationId: Создание товара
+      summary: Создание товара
+      description: |
+        Создание нового товара.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: Товар успешно изменен
+        '400':
+          description: Ошибки валидации в стандартном формате DRF
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/NonFieldValidationError'
+
+  /goods/{id}/:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Уникальный id товара
+        schema:
+          type: integer
+    get:
+      tags:
+        - Товары
+      operationId: Получение конкретного товара
+      summary: Товар
+      description: |
+        Выводит товар с заданным `id`.
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Товары
+      operationId: Изменение товара
+      summary: Изменение товара
+      description: |
+        Изменение существующего товара с заданным `id`.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: Товар успешно создан
+        '400':
+          description: Ошибки валидации в стандартном формате DRF
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - $ref: '#/components/schemas/NonFieldValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Товары
+      operationId: Удаление товара
+      summary: Удаление товара
+      description: |
+        Удаление существующего товара с заданным `id`.
+      parameters: []
+      responses:
+        '204':
+          description: Успешное удаление
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+
+  schemas:
+
+    Category:
+      description:  Категория
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: id категории
+          example: 123
+        name:
+          type: string
+          description: Название категории
+          example: Электроника и гаджеты
+
+    Product:
+      description:  Товар
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: id товара
+          example: 123
+        categories:
+          type: array
+          items:
+            description:  Категория
+            type: object
+            properties:
+              id:
+                type: integer
+                description: id категории
+                example: 123
+              name:
+                type: string
+                readOnly: true
+                description: Название категории
+                example: Электроника и гаджеты
+        name:
+          type: string
+          description: Название товара
+          example: Смартфон Oppo Poppo 19 XS LS Pro lite X-series
+        price:
+          type: number
+          description: Цена товара
+          example: 129999.99
+        is_public:
+          type: boolean
+          description: Отметка публикации товара
+          example: true
+          default: false
+        is_archive:
+          type: boolean
+          description: Отметка архивирования (удаления) товара
+          example: false
+          default: false
+
+    ValidationError:
+      description: Стандартные ошибки валидации DRF
+      type: object
+      properties:
+        field_name:
+          type: array
+          items:
+            description: Название поля, в котором произошли ошибки. Таких полей может быть несколько.
+            type: string
+            example: Обязательное поле.
+
+    NonFieldValidationError:
+      description: Стандартные ошибки валидации DRF
+      type: object
+      properties:
+        detail:
+          description: Описание ошибки.
+          type: string
+          example: Текст сообщения об ошибке
+
+    NotFound:
+      description: Объект не найден
+      type: object
+      properties:
+        detail:
+          description: Описание ошибки
+          example: Страница не найдена.
+          type: string
+
+  responses:
+
+    NotFound:
+      description: Объект не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFound'

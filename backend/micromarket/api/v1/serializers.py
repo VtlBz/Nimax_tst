@@ -1,7 +1,13 @@
+from django.conf import settings
+
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 from goods.models import Category, Product, ProductCategory
+
+
+product_restricts = settings.MODELS_SETTINGS['product_restricts']
+product_min_categories = product_restricts['min_categories']
+product_max_categories = product_restricts['max_categories']
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -50,12 +56,15 @@ class ProductWriteSerializer(serializers.ModelSerializer):
 
     categories = ProductCategoryWriteSerializer(many=True)
 
-    def validate_product_categories(self, value):
-        if not (2 < len(value) < 10):
+    def validate_categories(self, value):
+        if not (product_min_categories <= len(value)
+                and len(value) <= product_max_categories):
             raise serializers.ValidationError(
                 'Количество категорий может быть в диапазоне от 2 до 10'
             )
-        categories_set = set(value)
+        categories_set = set()
+        for item in value:
+            categories_set.add(item['id'])
         if len(categories_set) != len(value):
             raise serializers.ValidationError(
                 'Дублирование категорий не допускается'
