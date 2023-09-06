@@ -1,9 +1,11 @@
 from django.db.models import ProtectedError
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from goods.models import Category, Product
+from utils.filters import ProductFilter
 from .serializers import (CategorySerializer,
                           ProductReadSerializer,
                           ProductWriteSerializer,)
@@ -13,7 +15,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     ordering = ('-id',)
- 
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(
             data=request.data, many=isinstance(request.data, list)
@@ -39,18 +41,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class GoodsViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
-    # filter_backends = (DjangoFilterBackend,)
-    # filterset_class = ProductFilter
+    queryset = Product.objects.prefetch_related('categories')
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ProductFilter
     ordering = ('-id',)
 
-    def get_queryset(self):
-        queryset = self.queryset
-        if self.action == 'list':
-            queryset = queryset.filter(
-                is_archive=False
-            ).prefetch_related('categories')
-        return queryset
+    # def get_queryset(self):
+    #     queryset = self.queryset
+    #     if self.action == 'list':
+    #         queryset = queryset.filter(
+    #             is_archive=False
+    #         ).prefetch_related('categories')
+    #     return queryset
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PUT', 'PATCH']:
