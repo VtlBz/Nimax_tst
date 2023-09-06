@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Count
 
 from .models import Category, Product, ProductCategory
 
@@ -30,8 +31,14 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'products__product__name',)
     inlines = (ProductInline,)
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).annotate(
+            products_in_category=Count('products'),
+        )
+        return queryset
+
     def products_in_category(self, obj):
-        return obj.products.count()
+        return obj.products_in_category
 
     products_in_category.admin_order_field = 'products_in_category'
     products_in_category.short_description = 'Количество продуктов в категории'
@@ -40,18 +47,29 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
-        'pk', 'name', 'categories', 'price', 'is_public', 'is_archive',
+        'pk',
+        'name',
+        'categories_of_product',
+        'price',
+        'is_public',
+        'is_archive',
     )
     list_editable = ('name', 'price', 'is_public', 'is_archive',)
     search_fields = ('name', 'categories__category__name',)
     list_filter = ('categories__category',)
     inlines = (CategoryInline,)
 
-    def categories(self, obj):
-        return obj.categories.count()
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).annotate(
+            categories_of_product=Count('categories'),
+        )
+        return queryset
 
-    categories.admin_order_field = 'categories'
-    categories.short_description = 'Количество категорий'
+    def categories_of_product(self, obj):
+        return obj.categories_of_product
+
+    categories_of_product.admin_order_field = 'categories_of_product'
+    categories_of_product.short_description = 'Количество категорий'
 
 
 @admin.register(ProductCategory)
