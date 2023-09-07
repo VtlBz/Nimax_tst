@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from goods.models import Category, Product
 from utils.filters import ProductFilter
+from utils.paginations import BasePagination
 from .serializers import (CategorySerializer,
                           ProductReadSerializer,
                           ProductWriteSerializer,)
@@ -17,6 +18,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Category.objects.all()
+    pagination_class = BasePagination
     serializer_class = CategorySerializer
     ordering = ('-id',)
 
@@ -43,6 +45,7 @@ class GoodsViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Product.objects.prefetch_related('categories')
+    pagination_class = BasePagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ProductFilter
     ordering = ('-id',)
