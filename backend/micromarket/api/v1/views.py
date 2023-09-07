@@ -12,19 +12,13 @@ from .serializers import (CategorySerializer,
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+    """
+    Представление `/categories/`.
+    """
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     ordering = ('-id',)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            data=request.data, many=isinstance(request.data, list)
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data,
-                        status=status.HTTP_201_CREATED, headers=headers)
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -41,33 +35,22 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class GoodsViewSet(viewsets.ModelViewSet):
+    """
+    Представление `/goods/`.
+
+    Метод `DELETE` не удаляет объект,
+    а только изменяет состояние свойства `is_archive`.
+    """
+
     queryset = Product.objects.prefetch_related('categories')
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ProductFilter
     ordering = ('-id',)
 
-    # def get_queryset(self):
-    #     queryset = self.queryset
-    #     if self.action == 'list':
-    #         queryset = queryset.filter(
-    #             is_archive=False
-    #         ).prefetch_related('categories')
-    #     return queryset
-
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PUT', 'PATCH']:
             return ProductWriteSerializer
         return ProductReadSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            data=request.data, many=isinstance(request.data, list)
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data,
-                        status=status.HTTP_201_CREATED, headers=headers)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
